@@ -16,7 +16,6 @@ module.exports = {
 		modules: [path.resolve(__dirname, "src"), "node_modules"],
 		extensions: ['.ts', '.webpack.js', '.web.js', '.js']
 	},
-
 	module: {
 		loaders: [
 			// load css and process sass
@@ -27,9 +26,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new CleanWebpackPlugin(['dist'], {
-			root: path.resolve(__dirname, '')
-		}),
+		//new CleanWebpackPlugin(['dist']),
 		new CopyWebpackPlugin([
 			{
 				from: './index.html',

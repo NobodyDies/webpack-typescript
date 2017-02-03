@@ -7,6 +7,7 @@ declare var require;
 require('components/comment/comment.scss');
 import {IComment} from "../../interfaces";
 
+
 @Component({
     selector: 'comment',
     bindings: {
