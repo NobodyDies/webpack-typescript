@@ -3,7 +3,8 @@
  */
 
 import {Component} from '../../decorators';
-import './comment.scss';
+declare var require;
+require('components/comment/comment.scss');
 import {IComment} from "../../interfaces";
 
 @Component({

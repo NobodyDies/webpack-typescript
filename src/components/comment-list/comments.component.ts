@@ -2,7 +2,8 @@
  * Created by voland on 4/2/16.
  */
 import {Component, Injectable} from '../../decorators';
-import './comment-list.scss';
+declare var require;
+require('components/comment-list/comment-list.scss');
 import {IComment} from "../../interfaces";
 import {CommentComponent} from "../comment/comment.component";
 import {CommentsService} from "../../services/comments.service";

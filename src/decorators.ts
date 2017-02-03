@@ -54,8 +54,6 @@ export interface PipeTransform {
 export function Pipe(options: {name: string}, moduleOrName: string | ng.IModule = `${appName}.pipes`) {
     return (Pipe: PipeTransformStatic) => {
         annotate(Pipe);
-        //@todo: add support for injection across all registered modules
-        debugger;
         const $injector = angular.injector(['ng']);
         const instance:any = $injector.instantiate(Pipe);
         module(moduleOrName).filter(options.name, () => instance.transform.bind(instance));
