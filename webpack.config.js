@@ -1,12 +1,22 @@
-var path = require('path');
-var CopyWebpackPlugin = require('copy-webpack-plugin')
-var CleanWebpackPlugin = require('clean-webpack-plugin')
+const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const extractCSS = new ExtractTextPlugin({
+	filename: '../css/[name].css',
+	allChunks: true
+});
 
 module.exports = {
 
 	// set the context (optional)
 	context: path.join(__dirname, '/src'),
-	entry: 'main',
+	entry: 'app/index',
 	output: {
 		filename: '[name].js',
 		path: path.resolve(__dirname, 'dist/js')
@@ -19,21 +29,80 @@ module.exports = {
 	module: {
 		loaders: [
 			// load css and process sass
-			{test: /\.scss$/, loaders: ["style-loader", "css-loader", "sass-loader"]},
+			{
+				test: /\.scss$/,
+				loader: extractCSS.extract({
+					use: [
+						{
+							loader: 'css-loader',
+							options: {
+								sourceMap: true
+							}
+						},
+						{
+							loader: 'postcss-loader',
+							options: {
+							}
+						},
+						{
+							loader: 'sass-loader',
+							options: {
+								sourceMap: true
+							}
+						}
+					]
+				})
+			},
 
 			// all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-			{test: /\.ts$/, loader: 'babel-loader!ts-loader'}
+			{
+				test: /\.ts$/,
+				use: [
+					{
+						loader: "babel-loader",
+						options: {
+							plugins: ['transform-runtime'],
+							presets: ['es2015']
+						}
+					},{
+						loader: "ts-loader"
+					}
+				]
+				//'?optional[]=runtime!'
+			},
+			{
+				test: /\.pug$/,
+				loaders: ['pug-loader']
+			}
 		]
 	},
 	plugins: [
-		//new CleanWebpackPlugin(['dist']),
+		new CleanWebpackPlugin(['dist']),
 		new CopyWebpackPlugin([
-			{
-				from: './index.html',
-				to: path.resolve(__dirname, 'dist/index.html')
-			}
+			// {
+			// 	from: './index.html',
+			// 	to: path.resolve(__dirname, 'dist/index.html')
+			// }
 		], {
 			copyUnmodified: true
+		}),
+		extractCSS,
+		// new webpack.optimize.UglifyJsPlugin({
+		// 	compress: {
+		// 		warnings: false,
+		// 		drop_console: true,
+		// 		unsafe: true
+		// 	}
+		// }),
+		new webpack.NoErrorsPlugin(),
+		new webpack.optimize.CommonsChunkPlugin({
+			name: 'common'
+		}),
+		new HtmlWebpackPlugin({
+			template: './templates/news/index.pug'
+		}),
+		new HtmlWebpackPlugin({
+			template: './templates/news/item.pug'
 		})
 	],
 
@@ -45,5 +114,9 @@ module.exports = {
 	},
 
 	// support source maps
-	devtool: "source-map"
+	devtool: NODE_ENV == 'development' ? "source-map" : 'false',
+	watch: NODE_ENV == 'development',
+	watchOptions: {
+		aggregateTimeout: 100
+	}
 };
