@@ -3,9 +3,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+const package = require('./package.json');
+const banner = package.name + ' v' + package.version;
 
 const extractCSS = new ExtractTextPlugin({
 	filename: '../css/[name].css',
@@ -41,20 +42,23 @@ module.exports = {
 						},
 						{
 							loader: 'postcss-loader',
-							options: {
-							}
+							options: {}
 						},
 						{
 							loader: 'sass-loader',
 							options: {
 								sourceMap: true
 							}
+						},
+						{
+							loader: 'sass-resources-loader',
+							options: {
+								resources: path.resolve(__dirname, 'src/common_sass/bootstrap.scss')
+							},
 						}
 					]
 				})
 			},
-
-			// all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
 			{
 				test: /\.ts$/,
 				use: [
@@ -64,46 +68,41 @@ module.exports = {
 							plugins: ['transform-runtime'],
 							presets: ['es2015']
 						}
-					},{
+					}, {
 						loader: "ts-loader"
 					}
 				]
-				//'?optional[]=runtime!'
 			},
 			{
 				test: /\.pug$/,
-				loaders: ['pug-loader']
+				loaders: ['html-loader', 'pug-html-loader']
 			}
 		]
 	},
 	plugins: [
-		new CleanWebpackPlugin(['dist']),
-		new CopyWebpackPlugin([
-			// {
-			// 	from: './index.html',
-			// 	to: path.resolve(__dirname, 'dist/index.html')
-			// }
-		], {
-			copyUnmodified: true
+		new webpack.BannerPlugin({
+			banner: banner,
+			entryOnly: true
 		}),
+		new CleanWebpackPlugin(['dist']),
 		extractCSS,
-		// new webpack.optimize.UglifyJsPlugin({
-		// 	compress: {
-		// 		warnings: false,
-		// 		drop_console: true,
-		// 		unsafe: true
-		// 	}
-		// }),
-		new webpack.NoErrorsPlugin(),
+		/*new webpack.optimize.UglifyJsPlugin({
+			compress: {
+				warnings: false,
+				drop_console: true,
+				unsafe: true
+			}
+		}),*/
+		new webpack.NoEmitOnErrorsPlugin(),
 		new webpack.optimize.CommonsChunkPlugin({
 			name: 'common'
 		}),
-		new HtmlWebpackPlugin({
-			template: './templates/news/index.pug'
-		}),
-		new HtmlWebpackPlugin({
-			template: './templates/news/item.pug'
-		})
+		new CopyWebpackPlugin([
+			{
+				from: path.resolve(__dirname, 'node_modules/angular/angular.min.js'),
+				to: path.resolve(__dirname, 'dist/assets/vendor/angular/angular.min.js')
+			}
+		])
 	],
 
 	// webpack dev server configuration
