@@ -17,7 +17,7 @@ module.exports = {
 
 	// set the context (optional)
 	context: path.join(__dirname, '/src'),
-	entry: 'app/index',
+	entry: 'app/modules/index',
 	output: {
 		filename: '[name].js',
 		path: path.resolve(__dirname, 'dist/js')

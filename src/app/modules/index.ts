@@ -1,5 +1,5 @@
-import template from './index.pug';
-import style from './index.scss';
+const template = require('./index.pug');
+require('./index.scss');
 
 
 var myAppModule = angular.module('myApp', []);
