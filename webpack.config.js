@@ -2,6 +2,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const LocalePlugin = require('./build/LocalePlugin');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -10,6 +11,17 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const extractCSS = new ExtractTextPlugin({
 	filename: '../css/[name].css',
 	allChunks: true
+});
+
+const extractJSON = new ExtractTextPlugin({
+	filename: '[name].locale.json',
+	allChunks: true
+});
+
+const localePlugin = new LocalePlugin({
+	paths: [path.resolve(__dirname, '**/*.locale.json')],
+	outputDirectory: 'locale',
+	outputFileName: '[key]'
 });
 
 module.exports = {
@@ -73,6 +85,12 @@ module.exports = {
 			{
 				test: /\.pug$/,
 				loaders: ['pug-loader']
+			},
+			{
+				test: /\.yaml/,
+				loader: ExtractTextPlugin.extract({
+					use: LocalePlugin.loader()
+				})
 			}
 		]
 	},
@@ -87,6 +105,8 @@ module.exports = {
 			copyUnmodified: true
 		}),
 		extractCSS,
+		extractJSON,
+		localePlugin,
 		// new webpack.optimize.UglifyJsPlugin({
 		// 	compress: {
 		// 		warnings: false,
@@ -118,5 +138,8 @@ module.exports = {
 	watch: NODE_ENV == 'development',
 	watchOptions: {
 		aggregateTimeout: 100
-	}
+	},
+	resolveLoader: {
+		modules: ['node_modules', 'build']
+	},
 };
